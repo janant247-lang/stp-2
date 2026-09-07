@@ -1,0 +1,23 @@
+{
+  "name": "website-audit-and-optimization-system",
+  "version": "1.0.0",
+  "description": "Web-Based Website Audit & Optimization Recommendation System - AeroAudit Pro",
+  "scripts": {
+    "start": "node server/server.js",
+    "server": "cd server && npm start",
+    "client": "cd client && npm run dev",
+    "build": "cd client && npm run build"
+  },
+  "keywords": [
+    "seo-audit",
+    "website-audit",
+    "optimization",
+    "digital-marketing",
+    "react",
+    "nodejs",
+    "express",
+    "mongodb"
+  ],
+  "author": "AeroDigital Growth Marketing",
+  "license": "ISC"
+}
