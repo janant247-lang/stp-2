@@ -97,12 +97,38 @@ router.get('/:id', authenticateToken, (req, res) => {
   });
 });
 
-// POST /api/clients - Create client
+// POST /api/clients - Create client (Admin Only: FR-03 & Permission Rule)
 router.post('/', authenticateToken, (req, res) => {
-  const { name, company, email, phone, industry, website, assignedEmployee } = req.body;
+  if (req.user.role !== 'ADMIN') {
+    return res.status(403).json({
+      message: 'Access denied. Only administrators can register new clients and assign them to employees.'
+    });
+  }
+
+  const { name, company, email, phone, industry, website, assignedEmployee, assignedEmployeeId } = req.body;
 
   if (!name || !company || !email) {
     return res.status(400).json({ message: 'Name, company name, and email are required' });
+  }
+
+  // Resolve assigned employee
+  let targetEmpName = 'Unassigned';
+  let targetEmpId = null;
+
+  if (assignedEmployeeId) {
+    const empUser = db.findById('users', assignedEmployeeId);
+    if (empUser) {
+      targetEmpName = empUser.name;
+      targetEmpId = empUser.id;
+    }
+  } else if (assignedEmployee) {
+    const empUser = db.findOne('users', u => u.name.toLowerCase() === assignedEmployee.trim().toLowerCase());
+    if (empUser) {
+      targetEmpName = empUser.name;
+      targetEmpId = empUser.id;
+    } else {
+      targetEmpName = assignedEmployee;
+    }
   }
 
   const newClient = db.insert('clients', {
@@ -112,8 +138,8 @@ router.post('/', authenticateToken, (req, res) => {
     phone: phone || '',
     industry: industry || 'General Business',
     website: website || '',
-    assignedEmployee: assignedEmployee || req.user.name,
-    assignedEmployeeId: req.user.id,
+    assignedEmployee: targetEmpName,
+    assignedEmployeeId: targetEmpId,
     dateAdded: new Date().toISOString()
   });
 
@@ -136,17 +162,51 @@ router.post('/', authenticateToken, (req, res) => {
   res.status(201).json(newClient);
 });
 
-// PUT /api/clients/:id - Edit client
+// PUT /api/clients/:id - Edit client (Only Admin can reassign)
 router.put('/:id', authenticateToken, (req, res) => {
-  const updated = db.update('clients', req.params.id, req.body);
+  const isChangingAssignment =
+    req.body.assignedEmployee !== undefined || req.body.assignedEmployeeId !== undefined;
+
+  if (isChangingAssignment && req.user.role !== 'ADMIN') {
+    return res.status(403).json({
+      message: 'Access denied. Only administrators can assign or reassign clients to employees.'
+    });
+  }
+
+  const updates = { ...req.body };
+
+  // Sync employee name and id if admin provides either
+  if (req.user.role === 'ADMIN') {
+    if (updates.assignedEmployeeId) {
+      const empUser = db.findById('users', updates.assignedEmployeeId);
+      if (empUser) {
+        updates.assignedEmployee = empUser.name;
+        updates.assignedEmployeeId = empUser.id;
+      }
+    } else if (updates.assignedEmployee) {
+      const empUser = db.findOne('users', u => u.name.toLowerCase() === updates.assignedEmployee.trim().toLowerCase());
+      if (empUser) {
+        updates.assignedEmployee = empUser.name;
+        updates.assignedEmployeeId = empUser.id;
+      }
+    }
+  }
+
+  const updated = db.update('clients', req.params.id, updates);
   if (!updated) {
     return res.status(404).json({ message: 'Client not found' });
   }
   res.json(updated);
 });
 
-// DELETE /api/clients/:id - Delete client
+// DELETE /api/clients/:id - Delete client (Admin Only)
 router.delete('/:id', authenticateToken, (req, res) => {
+  if (req.user.role !== 'ADMIN') {
+    return res.status(403).json({
+      message: 'Access denied. Only administrators can remove clients from the system.'
+    });
+  }
+
   const success = db.delete('clients', req.params.id);
   if (!success) {
     return res.status(404).json({ message: 'Client not found' });

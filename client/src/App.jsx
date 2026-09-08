@@ -16,7 +16,6 @@ import AuditHistoryPage from './pages/AuditHistoryPage';
 import RecommendationsPage from './pages/RecommendationsPage';
 import EmployeesPage from './pages/EmployeesPage';
 import SettingsPage from './pages/SettingsPage';
-import ChangePasswordModal from './components/ChangePasswordModal';
 
 export default function App() {
   const { user, token, loading } = useAuth();
@@ -27,7 +26,6 @@ export default function App() {
   const [selectedAuditId, setSelectedAuditId] = useState(null);
   const [selectedWebsiteId, setSelectedWebsiteId] = useState(null);
   const [auditConfig, setAuditConfig] = useState(null);
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   if (loading) {
     return (
@@ -109,14 +107,12 @@ export default function App() {
         setCurrentPage={(page) => {
           setCurrentPage(page);
         }}
-        onChangePassword={() => setShowPasswordModal(true)}
       />
 
       <div className="main-content">
         <Topbar
           currentPageTitle={getPageTitle()}
           onQuickAudit={() => setCurrentPage('new-audit')}
-          onChangePassword={() => setShowPasswordModal(true)}
         />
 
         <main className="page-body">
@@ -212,11 +208,6 @@ export default function App() {
           )}
         </main>
       </div>
-
-      <ChangePasswordModal
-        isOpen={showPasswordModal}
-        onClose={() => setShowPasswordModal(false)}
-      />
     </div>
   );
 }

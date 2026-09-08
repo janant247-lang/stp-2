@@ -21,6 +21,7 @@ import {
 export default function ClientsPage({ onSelectClient, onRunAuditForClient }) {
   const { user, isAdmin } = useAuth();
   const [clients, setClients] = useState([]);
+  const [employeesList, setEmployeesList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
   const [selectedIndustry, setSelectedIndustry] = useState('');
@@ -36,7 +37,8 @@ export default function ClientsPage({ onSelectClient, onRunAuditForClient }) {
     phone: '',
     industry: 'E-Commerce & Retail',
     website: '',
-    assignedEmployee: user?.name || 'John Miller'
+    assignedEmployee: '',
+    assignedEmployeeId: ''
   });
 
   const industries = [
@@ -52,6 +54,17 @@ export default function ClientsPage({ onSelectClient, onRunAuditForClient }) {
   useEffect(() => {
     fetchClients();
   }, [search, selectedIndustry, scope]);
+
+  useEffect(() => {
+    // Fetch employee list for admin assignment dropdown
+    api.get('/users')
+      .then(data => {
+        if (Array.isArray(data)) {
+          setEmployeesList(data.filter(u => u.status !== 'DISABLED'));
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   const fetchClients = async () => {
     try {
@@ -70,7 +83,9 @@ export default function ClientsPage({ onSelectClient, onRunAuditForClient }) {
   };
 
   const handleOpenCreateModal = () => {
+    if (!isAdmin) return;
     setEditingClient(null);
+    const defaultEmp = employeesList.find(e => e.role === 'EMPLOYEE') || employeesList[0] || user;
     setFormData({
       name: '',
       company: '',
@@ -78,13 +93,15 @@ export default function ClientsPage({ onSelectClient, onRunAuditForClient }) {
       phone: '',
       industry: 'E-Commerce & Retail',
       website: '',
-      assignedEmployee: user?.name || 'John Miller'
+      assignedEmployee: defaultEmp?.name || '',
+      assignedEmployeeId: defaultEmp?.id || ''
     });
     setShowModal(true);
   };
 
   const handleOpenEditModal = (client, e) => {
     e.stopPropagation();
+    if (!isAdmin) return;
     setEditingClient(client);
     setFormData({
       name: client.name || '',
@@ -93,14 +110,16 @@ export default function ClientsPage({ onSelectClient, onRunAuditForClient }) {
       phone: client.phone || '',
       industry: client.industry || 'E-Commerce & Retail',
       website: client.website || '',
-      assignedEmployee: client.assignedEmployee || user?.name || 'John Miller'
+      assignedEmployee: client.assignedEmployee || '',
+      assignedEmployeeId: client.assignedEmployeeId || ''
     });
     setShowModal(true);
   };
 
   const handleDeleteClient = async (id, company, e) => {
     e.stopPropagation();
-    if (window.confirm(`Are you sure you want to delete ${company}?`)) {
+    if (!isAdmin) return;
+    if (window.confirm(`Are you sure you want to delete ${company}? Only administrators can perform this action.`)) {
       try {
         await api.delete(`/clients/${id}`);
         fetchClients();
@@ -137,15 +156,19 @@ export default function ClientsPage({ onSelectClient, onRunAuditForClient }) {
       {/* Header with Search and Actions */}
       <div className="card-header-flex" style={{ marginBottom: '24px' }}>
         <div>
-          <h2>Client Portfolio Management</h2>
+          <h2>Client Portfolio</h2>
           <p style={{ color: 'var(--text-secondary)', fontSize: '13.5px', marginTop: '4px' }}>
-            Manage agency clients, contact details, and their monitored web properties
+            {isAdmin
+              ? 'Manage clients, assign accounts to team members, and oversee web properties'
+              : 'View your assigned client accounts and run audits'}
           </p>
         </div>
-        <button className="btn btn-primary" onClick={handleOpenCreateModal}>
-          <Plus size={16} />
-          <span>Add New Client</span>
-        </button>
+        {isAdmin && (
+          <button className="btn btn-primary" onClick={handleOpenCreateModal} style={{ borderRadius: '10px' }}>
+            <Plus size={16} />
+            <span>Add New Client</span>
+          </button>
+        )}
       </div>
 
       {/* Scope Switcher Tabs */}
@@ -251,29 +274,50 @@ export default function ClientsPage({ onSelectClient, onRunAuditForClient }) {
                       style={{ cursor: 'pointer' }}
                     >
                       <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '14.5px' }}>
-                            {client.company}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                          <div
+                            style={{
+                              width: '36px',
+                              height: '36px',
+                              borderRadius: '10px',
+                              background: 'rgba(99, 102, 241, 0.15)',
+                              color: '#a5b4fc',
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              fontWeight: 700,
+                              fontSize: '13px',
+                              flexShrink: 0
+                            }}
+                          >
+                            {client.company.slice(0, 2).toUpperCase()}
                           </div>
-                          {isAssignedToMe && (
-                            <span
-                              style={{
-                                fontSize: '10px',
-                                background: 'rgba(59, 130, 246, 0.2)',
-                                color: '#60a5fa',
-                                padding: '1px 6px',
-                                borderRadius: '4px',
-                                fontWeight: 700
-                              }}
-                            >
-                              Yours
-                            </span>
-                          )}
-                        </div>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
-                          <span>{client.name}</span>
-                          <span>•</span>
-                          <span>{client.email}</span>
+                          <div>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                              <div style={{ fontWeight: 600, color: 'var(--text-primary)', fontSize: '14.5px' }}>
+                                {client.company}
+                              </div>
+                              {isAssignedToMe && (
+                                <span
+                                  style={{
+                                    fontSize: '10px',
+                                    background: 'rgba(99, 102, 241, 0.2)',
+                                    color: '#818cf8',
+                                    padding: '1px 7px',
+                                    borderRadius: '10px',
+                                    fontWeight: 700
+                                  }}
+                                >
+                                  Assigned to You
+                                </span>
+                              )}
+                            </div>
+                            <div style={{ fontSize: '12px', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '6px', marginTop: '2px' }}>
+                              <span>{client.name}</span>
+                              <span>•</span>
+                              <span>{client.email}</span>
+                            </div>
+                          </div>
                         </div>
                       </td>
                       <td>
@@ -314,20 +358,38 @@ export default function ClientsPage({ onSelectClient, onRunAuditForClient }) {
                       </td>
                       <td>
                         <div style={{ display: 'flex', gap: '8px' }}>
-                          <button
-                            className="btn btn-secondary btn-sm"
-                            onClick={(e) => handleOpenEditModal(client, e)}
-                            title="Edit Client"
-                          >
-                            <Edit2 size={13} />
-                          </button>
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={(e) => handleDeleteClient(client.id, client.company, e)}
-                            title="Delete Client"
-                          >
-                            <Trash2 size={13} />
-                          </button>
+                          {isAdmin ? (
+                            <>
+                              <button
+                                className="btn btn-secondary btn-sm"
+                                onClick={(e) => handleOpenEditModal(client, e)}
+                                title="Edit Client Profile & Assignment"
+                                style={{ borderRadius: '8px', padding: '6px 10px' }}
+                              >
+                                <Edit2 size={13} />
+                              </button>
+                              <button
+                                className="btn btn-danger btn-sm"
+                                onClick={(e) => handleDeleteClient(client.id, client.company, e)}
+                                title="Delete Client"
+                                style={{ borderRadius: '8px', padding: '6px 10px' }}
+                              >
+                                <Trash2 size={13} />
+                              </button>
+                            </>
+                          ) : (
+                            <span
+                              style={{
+                                fontSize: '12px',
+                                color: 'var(--text-muted)',
+                                padding: '4px 8px',
+                                background: 'rgba(255, 255, 255, 0.03)',
+                                borderRadius: '6px'
+                              }}
+                            >
+                              Assigned
+                            </span>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -431,14 +493,31 @@ export default function ClientsPage({ onSelectClient, onRunAuditForClient }) {
               </div>
 
               <div className="form-group">
-                <label className="form-label">Assigned Agency Employee</label>
-                <input
-                  type="text"
+                <label className="form-label">Assign Dedicated Team Member *</label>
+                <select
                   className="form-control"
-                  value={formData.assignedEmployee}
-                  onChange={(e) => setFormData({ ...formData, assignedEmployee: e.target.value })}
-                  placeholder="Employee Name"
-                />
+                  style={{ borderRadius: '10px' }}
+                  value={formData.assignedEmployeeId || ''}
+                  onChange={(e) => {
+                    const selectedEmp = employeesList.find(emp => emp.id === e.target.value);
+                    setFormData({
+                      ...formData,
+                      assignedEmployeeId: e.target.value,
+                      assignedEmployee: selectedEmp ? selectedEmp.name : ''
+                    });
+                  }}
+                  required
+                >
+                  <option value="">-- Choose Employee to Assign --</option>
+                  {employeesList.map((emp) => (
+                    <option key={emp.id} value={emp.id}>
+                      {emp.name} ({emp.email}) - {emp.role === 'ADMIN' ? 'Administrator' : 'Specialist'}
+                    </option>
+                  ))}
+                </select>
+                <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '6px' }}>
+                  Only administrators can assign clients to team members.
+                </p>
               </div>
 
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '24px' }}>

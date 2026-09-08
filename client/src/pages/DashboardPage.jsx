@@ -163,28 +163,50 @@ export default function DashboardPage({ onNavigate, onSelectAudit, onSelectClien
 
       {/* Agency Summary Banner */}
       <div className="agency-banner">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Sparkles size={20} color="#60a5fa" />
-          <span style={{ fontWeight: 700, letterSpacing: '0.04em', textTransform: 'uppercase', fontSize: '13px' }}>
-            {isMyView ? `PORTFOLIO WORKSPACE: ${stats?.employeeName || user?.name}` : 'AGENCY-WIDE INTELLIGENCE OVERVIEW'}
-          </span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div
+            style={{
+              width: '40px',
+              height: '40px',
+              borderRadius: '12px',
+              background: 'rgba(99, 102, 241, 0.25)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: '#a5b4fc'
+            }}
+          >
+            <Sparkles size={20} />
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: '15px', color: 'var(--text-primary)' }}>
+              {isMyView
+                ? `${stats?.employeeName || user?.name}'s Client Portfolio Pulse`
+                : 'Agency Team Overview & Client Health'}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--text-secondary)', marginTop: '2px' }}>
+              {isMyView
+                ? 'Here is how the clients assigned to you are performing right now.'
+                : 'Consolidated performance across all active agency accounts.'}
+            </div>
+          </div>
         </div>
         <div className="banner-pill-group">
           <div className="banner-stat">
-            <span>{isMyView ? 'My Clients:' : 'Total Clients:'}</span>
-            <strong>{stats?.agencyBanner?.clients ?? 0}</strong>
+            <span style={{ color: 'var(--text-secondary)' }}>{isMyView ? 'My Clients:' : 'Total Clients:'}</span>
+            <strong style={{ fontSize: '15px' }}>{stats?.agencyBanner?.clients ?? 0}</strong>
           </div>
           <div className="banner-stat">
-            <span>{isMyView ? 'My Websites:' : 'Total Websites:'}</span>
-            <strong>{stats?.agencyBanner?.websites ?? 0}</strong>
+            <span style={{ color: 'var(--text-secondary)' }}>{isMyView ? 'My Websites:' : 'Total Websites:'}</span>
+            <strong style={{ fontSize: '15px' }}>{stats?.agencyBanner?.websites ?? 0}</strong>
           </div>
           <div className="banner-stat">
-            <span>{isMyView ? 'My Audits:' : 'Total Audits:'}</span>
-            <strong>{stats?.agencyBanner?.audits ?? 0}</strong>
+            <span style={{ color: 'var(--text-secondary)' }}>{isMyView ? 'My Audits:' : 'Total Audits:'}</span>
+            <strong style={{ fontSize: '15px' }}>{stats?.agencyBanner?.audits ?? 0}</strong>
           </div>
           <div className="banner-stat">
-            <span>Average Health Score:</span>
-            <strong style={{ color: '#34d399' }}>
+            <span style={{ color: 'var(--text-secondary)' }}>Average Score:</span>
+            <strong style={{ color: '#34d399', fontSize: '15px' }}>
               {stats?.agencyBanner?.avgScore || 76} / 100
             </strong>
           </div>

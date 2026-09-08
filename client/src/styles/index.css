@@ -4,33 +4,33 @@
    ========================================================================== */
 
 :root {
-  /* Color Palette - Curated Midnight & Vibrant Accents */
-  --bg-primary: #0b0f19;
-  --bg-secondary: #111827;
-  --bg-card: rgba(17, 24, 39, 0.75);
-  --bg-card-hover: rgba(31, 41, 55, 0.85);
-  --bg-elevated: #1f2937;
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-active: rgba(59, 130, 246, 0.4);
+  /* Color Palette - Curated Warm Slate, Soft Navy & Approachable Accents */
+  --bg-primary: #0d111c;
+  --bg-secondary: #131b2e;
+  --bg-card: rgba(19, 27, 46, 0.8);
+  --bg-card-hover: rgba(30, 41, 69, 0.9);
+  --bg-elevated: #1e2942;
+  --border-subtle: rgba(255, 255, 255, 0.09);
+  --border-active: rgba(99, 102, 241, 0.45);
 
   /* Primary Brand & Gradients */
-  --primary: #3b82f6;
-  --primary-hover: #2563eb;
-  --primary-glow: rgba(59, 130, 246, 0.25);
-  --accent-cyan: #06b6d4;
-  --accent-purple: #8b5cf6;
-  --gradient-brand: linear-gradient(135deg, #3b82f6 0%, #06b6d4 100%);
-  --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%);
+  --primary: #6366f1;
+  --primary-hover: #4f46e5;
+  --primary-glow: rgba(99, 102, 241, 0.3);
+  --accent-cyan: #38bdf8;
+  --accent-purple: #a855f7;
+  --gradient-brand: linear-gradient(135deg, #6366f1 0%, #8b5cf6 60%, #ec4899 100%);
+  --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
 
   /* Status Colors */
   --color-success: #10b981;
-  --color-success-bg: rgba(16, 185, 129, 0.12);
+  --color-success-bg: rgba(16, 185, 129, 0.14);
   --color-warning: #f59e0b;
-  --color-warning-bg: rgba(245, 158, 11, 0.12);
+  --color-warning-bg: rgba(245, 158, 11, 0.14);
   --color-critical: #f43f5e;
-  --color-critical-bg: rgba(244, 63, 94, 0.12);
-  --color-info: #0ea5e9;
-  --color-info-bg: rgba(14, 165, 233, 0.12);
+  --color-critical-bg: rgba(244, 63, 94, 0.14);
+  --color-info: #38bdf8;
+  --color-info-bg: rgba(56, 189, 248, 0.14);
 
   /* Typography */
   --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
@@ -40,19 +40,19 @@
   --text-primary: #f8fafc;
   --text-secondary: #94a3b8;
   --text-muted: #64748b;
-  --text-inverse: #0b0f19;
+  --text-inverse: #0d111c;
 
   /* Shadows & Glassmorphism */
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -2px rgba(0, 0, 0, 0.2);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
-  --shadow-glow: 0 0 25px rgba(59, 130, 246, 0.2);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 6px 16px -2px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 14px 28px -4px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 0 25px rgba(99, 102, 241, 0.25);
   --glass-blur: blur(16px);
-  --radius-sm: 6px;
-  --radius-md: 10px;
-  --radius-lg: 16px;
-  --radius-xl: 24px;
-  --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 18px;
+  --radius-xl: 26px;
+  --transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 * {
@@ -71,8 +71,8 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-image:
-    radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
-    radial-gradient(circle at 85% 85%, rgba(6, 182, 212, 0.05) 0%, transparent 40%);
+    radial-gradient(circle at 12% 10%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+    radial-gradient(circle at 88% 85%, rgba(245, 158, 11, 0.07) 0%, transparent 45%);
   background-attachment: fixed;
 }
 
@@ -347,16 +347,17 @@ a:hover {
 
 /* Agency Summary Banner (FR-02) */
 .agency-banner {
-  background: linear-gradient(135deg, rgba(30, 58, 138, 0.3) 0%, rgba(15, 23, 42, 0.5) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.16) 0%, rgba(30, 41, 69, 0.6) 100%);
+  border: 1px solid rgba(99, 102, 241, 0.25);
   border-radius: var(--radius-lg);
-  padding: 18px 24px;
+  padding: 20px 24px;
   margin-bottom: 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 16px;
+  box-shadow: var(--shadow-md);
 }
 
 .banner-pill-group {
